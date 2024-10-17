@@ -1,0 +1,4 @@
+CREATE DATABASE barbershop_db;
+CREATE USER admin WITH PASSWORD 'sistemas';
+GRANT ALL PRIVILEGES ON DATABASE barbershop_db TO admin;
+ALTER DATABASE barbershop_db OWNER TO admin;

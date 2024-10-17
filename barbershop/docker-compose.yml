@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: sistemas
+      POSTGRES_DB: barbershop_db
+
+    networks:
+      - backend
+  
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/barbershop
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: barbershop_db
+      DB_USER: admin
+      DB_PASSWORD: sistemas
+
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  postgres_data:
