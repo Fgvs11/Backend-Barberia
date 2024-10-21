@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime, timedelta
 from django.utils import timezone
-
+from django.db.models import Q
 # Create your views here.
 
 class ServiciosViewSet(viewsets.ModelViewSet):
@@ -37,12 +37,20 @@ class CitasByBarber(APIView):
             return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
         serializer = CitasSerializer(citas, many=True)
         return Response(serializer.data)
+    
+class CitasByBarberSchedule(APIView):
+    def get(self, request, barber_id):
+        citas = Citas.objects.filter(id_barbero=barber_id).filter(Q(id_estado=1) | Q(id_estado=6))
+        if not citas.exists():
+            return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CitasSerializer(citas, many=True)
+        return Response(serializer.data)
 
 class AvailableSlotsView(APIView):
     def post(self, request):
-        barber_id = request.data.get('barber_id')
-        service_id = request.data.get('service_id')
-        date = request.data.get('date')
+        barber_id = request.data.get('id_barbero')
+        service_id = request.data.get('id_servicio')
+        date = request.data.get('fecha')
 
         if not barber_id or not service_id or not date:
             return Response({'error': 'Faltan parametros'}, status=status.HTTP_400_BAD_REQUEST)
@@ -75,6 +83,9 @@ class AvailableSlotsView(APIView):
         
         # Filtrar los intervalos que están ocupados por citas
         for appointment in appointments:
+            if appointment.id_estado != 1:
+                continue
+            
             appointment_start = appointment.fecha_inicio
             appointment_end = appointment.fecha_finalizacion
             
@@ -92,3 +103,115 @@ class AvailableSlotsView(APIView):
         available_slots_formatted = [slot.time().strftime('%H:%M') for slot in available_slots]
 
         return Response({'available_slots': available_slots_formatted}, status=status.HTTP_200_OK)
+
+
+class CreateAppointmentView(APIView):
+    def post(self, request):
+        barber_id = request.data.get('id_barbero')
+        client_id = request.data.get('id_cliente')
+        service_id = request.data.get('id_servicio')
+        start_datetime_str = request.data.get('fecha_inicio')
+
+        if not barber_id or not client_id or not service_id or not start_datetime_str:
+            return Response({'error': 'Faltan parametros'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            start_datetime = datetime.strptime(start_datetime_str, '%Y-%m-%d %H:%M')
+        except ValueError:
+            return Response({'error': 'Formato de fecha y hora invalido'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Obtener la duración del servicio
+        try:
+            service = Servicios.objects.get(id_servicio=service_id)
+            service_duration = timedelta(minutes=int(service.tiempo_aproximado * 60))
+        except Servicios.DoesNotExist:
+            return Response({'error': 'Servicio no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Calcular la fecha de finalización
+        end_datetime = start_datetime + service_duration
+
+        # Crear la cita
+        try:
+            barber = Barberos.objects.get(id_barbero=barber_id)
+            client = Cliente.objects.get(id_cliente=client_id)
+            appointment = Citas.objects.create(
+                id_barbero=barber,
+                id_cliente=client,
+                id_servicio=service,
+                fecha_inicio=start_datetime,
+                fecha_finalizacion=end_datetime
+            )
+        except Barberos.DoesNotExist:
+            return Response({'error': 'Barbero no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        except Cliente.DoesNotExist:
+            return Response({'error': 'Cliente no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'message': 'Cita creada exitosamente', 'appointment_id': appointment.id_cita}, status=status.HTTP_201_CREATED)
+    
+class RescheduleAppointmentView(APIView):
+    def patch(self, request, appointment_id):
+        try:
+            appointment = Citas.objects.get(id_cita=appointment_id)
+        except Citas.DoesNotExist:
+            return Response({'error': 'Cita no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            estado_reprogramado = EstadoCitas.objects.get(id_estado=3)
+        except EstadoCitas.DoesNotExist:
+            return Response({'error': 'Estado reprogramado no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        appointment.id_estado = estado_reprogramado
+        appointment.save()
+
+        return Response({'message': 'Estado de la cita actualizado a reprogramada'}, status=status.HTTP_200_OK)
+    
+class CancelBAppointmentView(APIView):
+    def patch(self, request, appointment_id):
+        try:
+            appointment = Citas.objects.get(id_cita=appointment_id)
+        except Citas.DoesNotExist:
+            return Response({'error': 'Cita no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            estado_reprogramado = EstadoCitas.objects.get(id_estado=5)
+        except EstadoCitas.DoesNotExist:
+            return Response({'error': 'Estado cancelado por el barbero no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        appointment.id_estado = estado_reprogramado
+        appointment.save()
+
+        return Response({'message': 'Estado de la cita actualizado a cancelada por el barbero'}, status=status.HTTP_200_OK)
+    
+class CancelCAppointmentView(APIView):
+    def patch(self, request, appointment_id):
+        try:
+            appointment = Citas.objects.get(id_cita=appointment_id)
+        except Citas.DoesNotExist:
+            return Response({'error': 'Cita no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            estado_reprogramado = EstadoCitas.objects.get(id_estado=2)
+        except EstadoCitas.DoesNotExist:
+            return Response({'error': 'Estado cancelado por el cliente no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        appointment.id_estado = estado_reprogramado
+        appointment.save()
+
+        return Response({'message': 'Estado de la cita actualizado a cancelada por el cliente'}, status=status.HTTP_200_OK)
+    
+class MissAppointmentView(APIView):
+    def patch(self, request, appointment_id):
+        try:
+            appointment = Citas.objects.get(id_cita=appointment_id)
+        except Citas.DoesNotExist:
+            return Response({'error': 'Cita no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            estado_reprogramado = EstadoCitas.objects.get(id_estado=4)
+        except EstadoCitas.DoesNotExist:
+            return Response({'error': 'Estado no asistido no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        appointment.id_estado = estado_reprogramado
+        appointment.save()
+
+        return Response({'message': 'Estado de la cita actualizado a no asistido'}, status=status.HTTP_200_OK)
