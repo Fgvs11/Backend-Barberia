@@ -69,3 +69,5 @@ class Citas(models.Model):
 
     def __str__(self):
         return f"{self.cliente.nombre} {self.cliente.apellido_paterno} {self.cliente.apellido_materno} - {self.fecha_inicio} to {self.fecha_finalizacion}"
+    
+    
