@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ServiciosViewSet, ClienteViewSet, BarberosViewSet, CitasViewSet, EstadoCitasViewSet
+from .views import ServiciosViewSet, ClienteViewSet, BarberosViewSet, CitasViewSet, EstadoCitasViewSet, CitasByBarber
 
 router = DefaultRouter()
 router.register(r'servicios', ServiciosViewSet)  # /api/servicios
@@ -11,5 +11,6 @@ router.register(r'estado-citas', EstadoCitasViewSet)  # /api/estado-citas
 
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('api/citas/barbero/<int:barber_id>/', CitasByBarber.as_view(), name='citas-by-barber')
 ]

@@ -58,7 +58,7 @@ class Citas(models.Model):
     id_servicio = models.ForeignKey(Servicios, on_delete = models.CASCADE)
     fecha_inicio= models.DateTimeField()
     fecha_finalizacion= models.DateTimeField()
-    id_estado = models.ForeignKey(EstadoCitas, on_delete = models.CASCADE)
+    id_estado = models.ForeignKey(EstadoCitas,default=1, on_delete = models.CASCADE)
     token = models.BooleanField(default = True)
 
     def clean(self):
