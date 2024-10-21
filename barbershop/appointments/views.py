@@ -29,6 +29,9 @@ class EstadoCitasViewSet(viewsets.ModelViewSet):
 
 class CitasByBarber(APIView):
     def get(self, request, barber_id):
-        citas = Citas.objects.filter(barbero_id=barber_id)
+        citas = Citas.objects.filter(id_barbero=barber_id)
+        if not citas.exists():
+            return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
         serializer = CitasSerializer(citas, many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.data)
+        

@@ -12,5 +12,5 @@ router.register(r'estado-citas', EstadoCitasViewSet)  # /api/estado-citas
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api/citas/barbero/<int:barber_id>/', CitasByBarber.as_view(), name='citas-by-barber')
+    path('citas/barbero/<int:barber_id>/', CitasByBarber.as_view(), name='citas-by-barber'),
 ]
