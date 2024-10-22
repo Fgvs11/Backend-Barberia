@@ -4,5 +4,5 @@ from .models import Cliente, Barberos, Servicios, EstadoCitas, Citas
 admin.site.register(Cliente)
 admin.site.register(Barberos)  
 admin.site.register(Servicios)
-#admin.site.register(EstadoCitas)
+admin.site.register(EstadoCitas)
 #admin.site.register(Citas)

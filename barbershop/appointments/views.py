@@ -8,6 +8,7 @@ from rest_framework import status
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Q
+import pytz
 # Create your views here.
 
 class ServiciosViewSet(viewsets.ModelViewSet):
@@ -40,7 +41,7 @@ class CitasByBarber(APIView):
     
 class CitasByBarberSchedule(APIView):
     def get(self, request, barber_id):
-        citas = Citas.objects.filter(id_barbero=barber_id).filter(Q(id_estado=1) | Q(id_estado=6))
+        citas = Citas.objects.filter(id_barbero=barber_id).filter(Q(id_estado=1) | Q(id_estado=7))
         if not citas.exists():
             return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
         serializer = CitasSerializer(citas, many=True)
@@ -68,8 +69,27 @@ class AvailableSlotsView(APIView):
             return Response({'error': 'Service no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         # Definir el horario de trabajo (ejemplo: 9:00 AM a 5:00 PM)
-        work_start_time = timezone.make_aware(datetime.combine(date, datetime.strptime('08:00', '%H:%M').time()))  # Hacer timezone-aware
-        work_end_time = timezone.make_aware(datetime.combine(date, datetime.strptime('21:00', '%H:%M').time()))    # Hacer timezone-aware
+        local_tz = pytz.timezone('America/Mexico_City')  # Ajusta esto a tu zona horaria local
+        work_start_time = local_tz.localize(datetime.combine(date, datetime.strptime('08:00', '%H:%M').time()))
+        work_end_time = local_tz.localize(datetime.combine(date, datetime.strptime('21:00', '%H:%M').time()))
+
+        # Obtener la hora actual en la zona horaria local
+        now = timezone.now().astimezone(local_tz).date()
+
+
+        if date < now:
+            return Response({'error': 'La fecha no puede ser menor a la fecha actual'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Si la fecha es hoy, ajustar el horario de inicio para que sea una hora después de la hora actual
+        if date == now.date():
+            next_hour = timezone.now().astimezone(local_tz) + timedelta(hours=1)
+            #print(now)
+            # Redondear al siguiente intervalo de 10 minutos
+            next_hour = next_hour.replace(minute=(next_hour.minute // 10 + 1) * 10 % 60, second=0, microsecond=0)
+            #print(now)
+            work_start_time = max(work_start_time, next_hour)
+
+        print(work_start_time)
 
         # Obtener todas las citas del barbero para el día especificado
         appointments = Citas.objects.filter(id_barbero=barber_id, fecha_inicio__date=date)
@@ -83,7 +103,7 @@ class AvailableSlotsView(APIView):
         
         # Filtrar los intervalos que están ocupados por citas
         for appointment in appointments:
-            if appointment.id_estado != 1:
+            if appointment.id_estado.id_estado != 1:
                 continue
             
             appointment_start = appointment.fecha_inicio
@@ -96,7 +116,8 @@ class AvailableSlotsView(APIView):
             # Remover intervalos que estén dentro de los tiempos de las citas
             available_slots = [
                 slot for slot in available_slots
-                if not (appointment_start <= slot < appointment_end)
+                if not (appointment_start <= slot < appointment_end or
+                        appointment_start < slot + service_duration <= appointment_end)
             ]
 
         # Convertir las horas a formato legible (por ejemplo: 08:00, 08:10, etc.)
@@ -120,6 +141,7 @@ class CreateAppointmentView(APIView):
         except ValueError:
             return Response({'error': 'Formato de fecha y hora invalido'}, status=status.HTTP_400_BAD_REQUEST)
 
+        
         # Obtener la duración del servicio
         try:
             service = Servicios.objects.get(id_servicio=service_id)
