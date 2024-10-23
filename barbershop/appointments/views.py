@@ -41,7 +41,7 @@ class CitasByBarber(APIView):
     
 class CitasByBarberSchedule(APIView):
     def get(self, request, barber_id):
-        citas = Citas.objects.filter(id_barbero=barber_id).filter(Q(id_estado=1) | Q(id_estado=7))
+        citas = Citas.objects.filter(id_barbero=barber_id, id_estado__in=[1,7])
         if not citas.exists():
             return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
         serializer = CitasSerializer(citas, many=True)
@@ -81,7 +81,7 @@ class AvailableSlotsView(APIView):
             return Response({'error': 'La fecha no puede ser menor a la fecha actual'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Si la fecha es hoy, ajustar el horario de inicio para que sea una hora después de la hora actual
-        if date == now.date():
+        if date == now:
             next_hour = timezone.now().astimezone(local_tz) + timedelta(hours=1)
             #print(now)
             # Redondear al siguiente intervalo de 10 minutos
@@ -124,8 +124,7 @@ class AvailableSlotsView(APIView):
         available_slots_formatted = [slot.time().strftime('%H:%M') for slot in available_slots]
 
         return Response({'available_slots': available_slots_formatted}, status=status.HTTP_200_OK)
-
-
+    
 class CreateAppointmentView(APIView):
     def post(self, request):
         barber_id = request.data.get('id_barbero')

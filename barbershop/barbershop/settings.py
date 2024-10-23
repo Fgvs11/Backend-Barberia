@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import dj_database_url
 import environ
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -147,3 +148,20 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Mexico_City'  # Ajusta esto a tu zona horaria local
+
+# Configuración de Celery Beat
+
+CELERY_BEAT_SCHEDULE = {
+    'update-appointment-status-every-minute': {
+        'task': 'appointments.tasks.update_appointment_status',
+        'schedule': crontab(minute='*/1'),  # Ejecutar cada minuto
+    },
+}

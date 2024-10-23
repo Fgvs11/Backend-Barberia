@@ -11,11 +11,11 @@ Para ello ejecutar los siguientes comandos
 
 # Listo solo queda ejecutar el server
 `python manage.py runserver`
+`celery -A barbershop worker --loglevel=info`
+`celery -A barbershop beat --loglevel=info`
 
 # To do list
-- Make the algorithm for the appointments
-- Make the Get request for the hours available
+
 - Use docker for production
-- Configure deepOcean as the server
 - Make the authentification work
 - Make the users table with the barber_id relationship
