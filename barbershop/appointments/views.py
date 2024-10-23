@@ -102,26 +102,39 @@ class AvailableSlotsView(APIView):
             current_time += timedelta(minutes=10)
         
         # Filtrar los intervalos que están ocupados por citas
+        
         for appointment in appointments:
             if appointment.id_estado.id_estado != 1:
                 continue
-            
+            print(appointment)
             appointment_start = appointment.fecha_inicio
             appointment_end = appointment.fecha_finalizacion
-            
-            if timezone.is_naive(appointment_start):
-                appointment_start = timezone.make_aware(appointment_start)
-            if timezone.is_naive(appointment_end):
-                appointment_end = timezone.make_aware(appointment_end)
+            # En lugar de convertir el tiempo, asumimos que está en la zona horaria local sin ajustarlo
+            appointment_start = appointment_start.replace(tzinfo=None)
+            appointment_end = appointment_end.replace(tzinfo=None)
             # Remover intervalos que estén dentro de los tiempos de las citas
-            available_slots = [
-                slot for slot in available_slots
-                if not (appointment_start <= slot < appointment_end or
-                        appointment_start < slot + service_duration <= appointment_end)
-            ]
+            print(f"Inciio: {appointment_start} - Fin: {appointment_end}")
+            filtered_slots = []
+            for slot in available_slots:
+                # Comprobar si el slot está completamente fuera del rango de la cita
+                slot = slot.replace(tzinfo=None)
+                # print(slot)
+                # print(appointment_start)
+                if slot >= appointment_start and slot < appointment_end:
+                    continue
+                slot_end = (slot + service_duration).replace(tzinfo=None)
+
+                if slot_end > appointment_start and slot_end <= appointment_end:
+                    continue
+                filtered_slots.append(slot)
+                
+
+            # Actualizar la lista de slots disponibles
+            available_slots = filtered_slots
 
         # Convertir las horas a formato legible (por ejemplo: 08:00, 08:10, etc.)
         available_slots_formatted = [slot.time().strftime('%H:%M') for slot in available_slots]
+        print(f"Available slots: {available_slots_formatted}")
 
         return Response({'available_slots': available_slots_formatted}, status=status.HTTP_200_OK)
     

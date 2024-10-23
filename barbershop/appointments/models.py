@@ -68,6 +68,6 @@ class Citas(models.Model):
             raise ValidationError('La fecha de inicio no puede ser menor a la fecha actual')
 
     def __str__(self):
-        return f"{self.cliente.nombre} {self.cliente.apellido_paterno} {self.cliente.apellido_materno} - {self.fecha_inicio} to {self.fecha_finalizacion}"
+        return f"{self.id_cliente.nombre} {self.id_cliente.apellido_paterno} {self.id_cliente.apellido_materno} - {self.fecha_inicio} to {self.fecha_finalizacion}"
     
     
