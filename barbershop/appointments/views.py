@@ -153,6 +153,11 @@ class CreateAppointmentView(APIView):
         except ValueError:
             return Response({'error': 'Formato de fecha y hora invalido'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Convertir la fecha y hora de inicio a la zona horaria local
+        try:
+            start_datetime = timezone.make_aware(start_datetime, timezone.get_current_timezone())
+        except Exception as e:
+            return Response({'error': 'Error al convertir la zona horaria'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Obtener la duración del servicio
         try:
@@ -161,6 +166,7 @@ class CreateAppointmentView(APIView):
         except Servicios.DoesNotExist:
             return Response({'error': 'Servicio no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
+        
         # Calcular la fecha de finalización
         end_datetime = start_datetime + service_duration
 

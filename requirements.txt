@@ -11,12 +11,18 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 colorama==0.4.6
+cron-descriptor==1.4.5
 dj-database-url==2.2.0
 Django==5.1.1
+django-celery-beat==2.7.0
 django-cors-headers==4.5.0
 django-environ==0.11.2
+django-timezone-field==7.0
 djangorestframework==3.15.2
+dnspython==2.7.0
+eventlet==0.37.0
 Flask==3.0.3
+greenlet==3.1.1
 idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.4
@@ -32,6 +38,7 @@ PyMsgBox==1.0.9
 pyperclip==1.9.0
 PyRect==0.2.0
 PyScreeze==1.0.1
+python-crontab==3.2.0
 python-dateutil==2.9.0.post0
 pytweening==1.2.0
 pytz==2024.2
