@@ -109,20 +109,16 @@ class AvailableSlotsView(APIView):
             print(appointment)
             appointment_start = appointment.fecha_inicio
             appointment_end = appointment.fecha_finalizacion
-            # En lugar de convertir el tiempo, asumimos que está en la zona horaria local sin ajustarlo
-            appointment_start = appointment_start.replace(tzinfo=None)
-            appointment_end = appointment_end.replace(tzinfo=None)
             # Remover intervalos que estén dentro de los tiempos de las citas
             print(f"Inciio: {appointment_start} - Fin: {appointment_end}")
             filtered_slots = []
             for slot in available_slots:
                 # Comprobar si el slot está completamente fuera del rango de la cita
-                slot = slot.replace(tzinfo=None)
-                # print(slot)
-                # print(appointment_start)
+                print(slot)
+                print(appointment_start)
                 if slot >= appointment_start and slot < appointment_end:
                     continue
-                slot_end = (slot + service_duration).replace(tzinfo=None)
+                slot_end = slot + service_duration
 
                 if slot_end > appointment_start and slot_end <= appointment_end:
                     continue
