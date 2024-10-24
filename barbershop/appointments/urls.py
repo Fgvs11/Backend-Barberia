@@ -81,10 +81,10 @@ router.register(r'estado-citas', EstadoCitasViewSet)  # /api/estado-citas
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('citas/barbero', CitasByBarber.as_view(), name='citas-by-barber'), #api/citas/barbero/  GET
-    path('citas/barbero/filter', CitasByBarberSchedule.as_view(), name='citas-by-barber'), #api/citas/filter/  GET
+    path('citas/barbero/', CitasByBarber.as_view(), name='citas-by-barber'), #api/citas/barbero/  GET
+    path('citas/barbero/filter/', CitasByBarberSchedule.as_view(), name='citas-by-barber'), #api/citas/filter/  GET
     path('horarios-disponibles/', AvailableSlotsView.as_view(), name='horarios-disponibles'), #api/horarios-disponibles/ POST
-    path('citas/crear', CreateAppointmentView.as_view(), name='crear-cita'), #api/citas/crear POST
+    path('citas/crear/', CreateAppointmentView.as_view(), name='crear-cita'), #api/citas/crear/ POST
     path('citas/reprogramar/<int:appointment_id>/', RescheduleAppointmentView.as_view(), name='reprogramar-cita'), #api/citas/reprogramar/<int:appointment_id>/  PATCH
     path('citas/cancelar/barbero/<int:appointment_id>/', CancelBAppointmentView.as_view(), name='cancelar-cita-barbero'), #api/citas/cancelar/barbero<int:appointment_id>/ PATCH
     path('citas/cancelar/cliente/<int:appointment_id>/', CancelCAppointmentView.as_view(), name='cancelar-cita-cliente'), #api/citas/cancelar/cliente/<int:appointment_id>/ PATCH
