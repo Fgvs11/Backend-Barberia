@@ -26,9 +26,10 @@ class UserBarberoForm(forms.ModelForm):
         # Comprobar si el username ya está en uso
         user_qs = User.objects.filter(username=username)
 
-        if self.instance and self.instance.user:
-            # Excluir al usuario actual de la consulta (para permitir que el admin edite sin problemas)
-            user_qs = user_qs.exclude(pk=self.instance.user.pk)
+        if self.instance.pk:  # Solo verifica si la instancia existe
+            if self.instance.user:  # Asegúrate de que el barbero ya tiene un usuario
+                user_qs = user_qs.exclude(pk=self.instance.user.pk)
+
 
         if user_qs.exists():
             raise ValidationError("El nombre de usuario ya está en uso. Por favor, elige otro.")
@@ -36,8 +37,13 @@ class UserBarberoForm(forms.ModelForm):
         return username
 
     def save(self, commit=True):
-        # Actualizar los campos del usuario relacionado
-        user = self.instance.user  # Obtener el usuario relacionado
+        # Si no hay un usuario asignado al barbero, creamos uno nuevo
+        if not self.instance.user:
+            user = User()
+        else:
+            user = self.instance.user  # Obtener el usuario relacionado
+
+        # Actualizar los campos del usuario
         user.username = self.cleaned_data['username']
         user.email = self.cleaned_data['email']
 

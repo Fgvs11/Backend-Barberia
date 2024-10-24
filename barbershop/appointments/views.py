@@ -9,30 +9,46 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Q
 import pytz
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 # Create your views here.
 
 class ServiciosViewSet(viewsets.ModelViewSet):
     queryset = Servicios.objects.all()
     serializer_class = ServiciosSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
     serializer_class = ClienteSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 class BarberosViewSet(viewsets.ModelViewSet):
     queryset = Barberos.objects.all()
     serializer_class = BarberosSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 class CitasViewSet(viewsets.ModelViewSet):
     queryset = Citas.objects.all()
     serializer_class = CitasSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 class EstadoCitasViewSet(viewsets.ModelViewSet):
     queryset = EstadoCitas.objects.all()
     serializer_class = EstadoCitasSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 class CitasByBarber(APIView):
-    def get(self, request, barber_id):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        barber_id = request.user.barberos.id_barbero
         citas = Citas.objects.filter(id_barbero=barber_id)
         if not citas.exists():
             return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
@@ -40,7 +56,11 @@ class CitasByBarber(APIView):
         return Response(serializer.data)
     
 class CitasByBarberSchedule(APIView):
-    def get(self, request, barber_id):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        barber_id = request.user.barberos.id_barbero
         citas = Citas.objects.filter(id_barbero=barber_id, id_estado__in=[1,7,4,6])
         if not citas.exists():
             return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
@@ -48,8 +68,11 @@ class CitasByBarberSchedule(APIView):
         return Response(serializer.data)
 
 class AvailableSlotsView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     def post(self, request):
-        barber_id = request.data.get('id_barbero')
+        barber_id = request.user.barberos
         service_id = request.data.get('id_servicio')
         date = request.data.get('fecha')
 
@@ -135,8 +158,11 @@ class AvailableSlotsView(APIView):
         return Response({'available_slots': available_slots_formatted}, status=status.HTTP_200_OK)
     
 class CreateAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     def post(self, request):
-        barber_id = request.data.get('id_barbero')
+        barber_id = request.user.barberos
         client_id = request.data.get('id_cliente')
         service_id = request.data.get('id_servicio')
         start_datetime_str = request.data.get('fecha_inicio')
@@ -185,6 +211,8 @@ class CreateAppointmentView(APIView):
         return Response({'message': 'Cita creada exitosamente', 'appointment_id': appointment.id_cita}, status=status.HTTP_201_CREATED)
     
 class RescheduleAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def patch(self, request, appointment_id):
         try:
             appointment = Citas.objects.get(id_cita=appointment_id)
@@ -202,6 +230,8 @@ class RescheduleAppointmentView(APIView):
         return Response({'message': 'Estado de la cita actualizado a reprogramada'}, status=status.HTTP_200_OK)
     
 class CancelBAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def patch(self, request, appointment_id):
         try:
             appointment = Citas.objects.get(id_cita=appointment_id)
@@ -219,6 +249,8 @@ class CancelBAppointmentView(APIView):
         return Response({'message': 'Estado de la cita actualizado a cancelada por el barbero'}, status=status.HTTP_200_OK)
     
 class CancelCAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def patch(self, request, appointment_id):
         try:
             appointment = Citas.objects.get(id_cita=appointment_id)
@@ -236,6 +268,8 @@ class CancelCAppointmentView(APIView):
         return Response({'message': 'Estado de la cita actualizado a cancelada por el cliente'}, status=status.HTTP_200_OK)
     
 class MissAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def patch(self, request, appointment_id):
         try:
             appointment = Citas.objects.get(id_cita=appointment_id)
@@ -253,6 +287,8 @@ class MissAppointmentView(APIView):
         return Response({'message': 'Estado de la cita actualizado a no asistido'}, status=status.HTTP_200_OK)
     
 class CompleteAppointmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     def patch(self, request, appointment_id):
         try:
             appointment = Citas.objects.get(id_cita=appointment_id)

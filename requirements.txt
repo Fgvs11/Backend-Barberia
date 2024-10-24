@@ -19,6 +19,7 @@ django-cors-headers==4.5.0
 django-environ==0.11.2
 django-timezone-field==7.0
 djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
 dnspython==2.7.0
 eventlet==0.37.0
 Flask==3.0.3
@@ -34,6 +35,7 @@ prompt_toolkit==3.0.48
 psycopg2-binary==2.9.9
 PyAutoGUI==0.9.54
 PyGetWindow==0.0.9
+PyJWT==2.9.0
 PyMsgBox==1.0.9
 pyperclip==1.9.0
 PyRect==0.2.0

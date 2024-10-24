@@ -21,7 +21,7 @@ class Cliente(models.Model):
 class Barberos(models.Model):
     id_barbero = models.AutoField(primary_key = True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length = 40)
+    nombre = models.CharField(max_length = 50)
     apellido_paterno = models.CharField(max_length = 30)
     apellido_materno = models.CharField(max_length = 30)
     telefono = models.CharField(max_length = 10,
