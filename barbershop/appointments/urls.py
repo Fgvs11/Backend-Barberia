@@ -81,7 +81,7 @@ router.register(r'estado-citas', EstadoCitasViewSet)  # /api/estado-citas
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('citas/barbero/', CitasByBarber.as_view(), name='citas-by-barber'), #api/citas/barbero/  GET
+    path('citas/barbero/general/', CitasByBarber.as_view(), name='citas-by-barber'), #api/citas/barbero/general/  GET
     path('citas/barbero/filter/', CitasByBarberSchedule.as_view(), name='citas-by-barber'), #api/citas/filter/  GET
     path('horarios-disponibles/', AvailableSlotsView.as_view(), name='horarios-disponibles'), #api/horarios-disponibles/ POST
     path('citas/crear', CreateAppointmentView.as_view(), name='crear-cita'), #api/citas/crear POST
