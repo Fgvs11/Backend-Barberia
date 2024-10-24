@@ -41,7 +41,7 @@ class CitasByBarber(APIView):
     
 class CitasByBarberSchedule(APIView):
     def get(self, request, barber_id):
-        citas = Citas.objects.filter(id_barbero=barber_id, id_estado__in=[1,7])
+        citas = Citas.objects.filter(id_barbero=barber_id, id_estado__in=[1,7,4,6])
         if not citas.exists():
             return Response({"message": "No se encontraron citas para este barbero"}, status=status.HTTP_404_NOT_FOUND)
         serializer = CitasSerializer(citas, many=True)
