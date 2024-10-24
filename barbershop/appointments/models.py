@@ -2,6 +2,7 @@ from datetime import timezone
 from django.db import models
 from django.core.validators import MinLengthValidator, RegexValidator
 from django.forms import ValidationError
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Cliente(models.Model):
@@ -19,6 +20,7 @@ class Cliente(models.Model):
     
 class Barberos(models.Model):
     id_barbero = models.AutoField(primary_key = True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length = 40)
     apellido_paterno = models.CharField(max_length = 30)
     apellido_materno = models.CharField(max_length = 30)
@@ -52,7 +54,7 @@ class EstadoCitas(models.Model):
         return self.nombre
     
 class Citas(models.Model):
-    id_cita = models.AutoField(primary_key = True)
+    id_cita = models.AutoField(primary_key = True)  
     id_cliente = models.ForeignKey(Cliente, on_delete = models.CASCADE)
     id_barbero = models.ForeignKey(Barberos, on_delete = models.CASCADE)
     id_servicio = models.ForeignKey(Servicios, on_delete = models.CASCADE)
