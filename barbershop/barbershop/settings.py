@@ -63,9 +63,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    env('FRONTEND_URL')
-]
+# CORS_ALLOWED_ORIGINS = [
+#     env('FRONTEND_URL')
+# ]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 ROOT_URLCONF = 'barbershop.urls'
 
