@@ -70,7 +70,7 @@ Routes:
 """
 from rest_framework.routers import DefaultRouter
 from .views import ServiciosViewSet, ClienteViewSet, BarberosViewSet, CitasViewSet, EstadoCitasViewSet, CitasByBarber, AvailableSlotsView, CreateAppointmentView,RescheduleAppointmentView, CancelBAppointmentView, CancelCAppointmentView, MissAppointmentView
-from .views import CitasByBarberSchedule
+from .views import CitasByBarberSchedule, CompleteAppointmentView
 router = DefaultRouter()
 router.register(r'servicios', ServiciosViewSet)  # /api/servicios
 router.register(r'cliente', ClienteViewSet)  # /api/cliente
@@ -89,4 +89,5 @@ urlpatterns = [
     path('citas/cancelar/barbero/<int:appointment_id>/', CancelBAppointmentView.as_view(), name='cancelar-cita-barbero'), #api/citas/cancelar/barbero<int:appointment_id>/ PATCH
     path('citas/cancelar/cliente/<int:appointment_id>/', CancelCAppointmentView.as_view(), name='cancelar-cita-cliente'), #api/citas/cancelar/cliente/<int:appointment_id>/ PATCH
     path('citas/falto/<int:appointment_id>/', MissAppointmentView.as_view(), name='falto-cita'), #api/citas/falto/<int:appointment_id>/ PATCH
+    path('citas/completar/<int:appointment_id>/', CompleteAppointmentView.as_view(), name='completar-cita'), #api/citas/completar/<int:appointment_id>/ PATCH
 ]

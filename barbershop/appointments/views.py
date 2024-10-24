@@ -251,3 +251,20 @@ class MissAppointmentView(APIView):
         appointment.save()
 
         return Response({'message': 'Estado de la cita actualizado a no asistido'}, status=status.HTTP_200_OK)
+    
+class CompleteAppointmentView(APIView):
+    def patch(self, request, appointment_id):
+        try:
+            appointment = Citas.objects.get(id_cita=appointment_id)
+        except Citas.DoesNotExist:
+            return Response({'error': 'Cita no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            estado_reprogramado = EstadoCitas.objects.get(id_estado=6)
+        except EstadoCitas.DoesNotExist:
+            return Response({'error': 'Estado completada no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        appointment.id_estado = estado_reprogramado
+        appointment.save()
+
+        return Response({'message': 'Estado de la cita actualizado a completada'}, status=status.HTTP_200_OK)
