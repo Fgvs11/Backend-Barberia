@@ -72,7 +72,7 @@ class AvailableSlotsView(APIView):
     authentication_classes = [JWTAuthentication]
 
     def post(self, request):
-        barber_id = request.user.barberos
+        barber_id = request.user.barberos.id_barbero
         service_id = request.data.get('id_servicio')
         date = request.data.get('fecha')
 
@@ -162,7 +162,7 @@ class CreateAppointmentView(APIView):
     authentication_classes = [JWTAuthentication]
 
     def post(self, request):
-        barber_id = request.user.barberos
+        barber_id = request.user.barberos.id_barbero
         client_id = request.data.get('id_cliente')
         service_id = request.data.get('id_servicio')
         start_datetime_str = request.data.get('fecha_inicio')
