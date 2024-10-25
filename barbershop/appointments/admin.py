@@ -2,6 +2,8 @@ from django.contrib import admin
 from .models import Cliente, Barberos, Servicios, EstadoCitas, Citas
 from django.contrib.auth.models import User
 from .forms import UserBarberoForm
+from rest_framework_simplejwt.token_blacklist import admin as blacklist_admin
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 class BarberosAdmin(admin.ModelAdmin):
     form = UserBarberoForm
@@ -34,6 +36,14 @@ class BarberosAdmin(admin.ModelAdmin):
 admin.site.register(Cliente)
 #admin.site.register(Barberos)  
 admin.site.register(Servicios)
-admin.site.register(EstadoCitas)
+#admin.site.register(EstadoCitas)
 admin.site.register(Barberos,BarberosAdmin)
 #admin.site.register(Citas)
+
+# Desregistrar los modelos
+admin.site.unregister(PeriodicTask)
+admin.site.unregister(CrontabSchedule)
+
+# Para remover estas líneas si existen:
+admin.site.unregister(blacklist_admin.BlacklistedToken)
+admin.site.unregister(blacklist_admin.OutstandingToken)
