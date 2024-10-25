@@ -41,8 +41,12 @@ admin.site.register(Barberos,BarberosAdmin)
 #admin.site.register(Citas)
 
 # Desregistrar los modelos
-admin.site.unregister(PeriodicTask)
-admin.site.unregister(CrontabSchedule)
+# Verifica si PeriodicTask y CrontabSchedule están registrados antes de desregistrarlos
+if admin.site.is_registered(PeriodicTask):
+    admin.site.unregister(PeriodicTask)
+
+if admin.site.is_registered(CrontabSchedule):
+    admin.site.unregister(CrontabSchedule)
 
 # Para remover estas líneas si existen:
 admin.site.unregister(blacklist_admin.BlacklistedToken)
