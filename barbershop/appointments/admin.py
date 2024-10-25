@@ -3,7 +3,13 @@ from .models import Cliente, Barberos, Servicios, EstadoCitas, Citas
 from django.contrib.auth.models import User
 from .forms import UserBarberoForm
 from rest_framework_simplejwt.token_blacklist import admin as blacklist_admin
-from django_celery_beat.models import PeriodicTask, CrontabSchedule, IntervalSchedule, SolarSchedule
+from django_celery_beat.models import (
+    IntervalSchedule,
+    CrontabSchedule,
+    SolarSchedule,
+    ClockedSchedule,
+    PeriodicTask,
+)
 from django.apps import apps
 
 
@@ -45,10 +51,11 @@ admin.site.register(Barberos,BarberosAdmin)
 # Desregistrar los modelos
 # Verifica si PeriodicTask y CrontabSchedule están registrados antes de desregistrarlos
 
-admin.site.unregister(PeriodicTask)
-admin.site.unregister(CrontabSchedule)
-admin.site.unregister(IntervalSchedule)
 admin.site.unregister(SolarSchedule)
+admin.site.unregister(ClockedSchedule)
+admin.site.unregister(PeriodicTask)
+admin.site.unregister(IntervalSchedule)
+admin.site.unregister(CrontabSchedule)
 # Para remover estas líneas si existen:
 admin.site.unregister(blacklist_admin.BlacklistedToken)
 admin.site.unregister(blacklist_admin.OutstandingToken)
