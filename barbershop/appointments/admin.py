@@ -51,11 +51,28 @@ admin.site.register(Barberos,BarberosAdmin)
 # Desregistrar los modelos
 # Verifica si PeriodicTask y CrontabSchedule están registrados antes de desregistrarlos
 
-admin.site.unregister(SolarSchedule)
-admin.site.unregister(ClockedSchedule)
-admin.site.unregister(PeriodicTask)
-admin.site.unregister(IntervalSchedule)
-admin.site.unregister(CrontabSchedule)
+if apps.is_installed('django_celery_beat'):
+    try:
+        admin.site.unregister(PeriodicTask)
+    except admin.sites.NotRegistered:
+        pass
+    try:
+        admin.site.unregister(CrontabSchedule)
+    except admin.sites.NotRegistered:
+        pass
+    try:
+        admin.site.unregister(IntervalSchedule)
+    except admin.sites.NotRegistered:
+        pass
+    try:
+        admin.site.unregister(SolarSchedule)
+    except admin.sites.NotRegistered:
+        pass
+    try:
+        admin.site.unregister(ClockedSchedule)
+    except admin.sites.NotRegistered:
+        pass
+
 # Para remover estas líneas si existen:
 admin.site.unregister(blacklist_admin.BlacklistedToken)
 admin.site.unregister(blacklist_admin.OutstandingToken)
