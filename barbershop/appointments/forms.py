@@ -38,10 +38,9 @@ class UserBarberoForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Si no hay un usuario asignado al barbero, creamos uno nuevo
-        if not self.instance.user:
-            user = User()
-        else:
-            user = self.instance.user  # Obtener el usuario relacionado
+        user = getattr(self.instance, 'user', None)
+        if not user:
+            user = User()  # Crear un nuevo usuario si no existe
 
         # Actualizar los campos del usuario
         user.username = self.cleaned_data['username']
@@ -52,10 +51,14 @@ class UserBarberoForm(forms.ModelForm):
         if password:
             user.set_password(password)
 
+        # Guardar el usuario antes de asignarlo al barbero
+        user.save()
+
+        # Asignar el usuario al barbero y guardar el barbero
+        barbero = super().save(commit=False)
+        barbero.user = user
+
         if commit:
-            user.save()  # Guardar los cambios en el usuario
-            barbero = super().save(commit=False)
-            barbero.user = user  # Relacionar el barbero con el usuario
             barbero.save()  # Guardar el barbero
 
         return self.instance
