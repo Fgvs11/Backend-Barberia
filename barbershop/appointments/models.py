@@ -38,6 +38,8 @@ class Servicios(models.Model):
     tiempo_aproximado = models.FloatField()
 
     def clean(self):
+        if self.precio is None:
+            raise ValidationError('El precio no puede estar vacio')
         if self.precio <= 0:
             raise ValidationError('El precio no puede ser negativo')
         if self.tiempo_aproximado <= 0:

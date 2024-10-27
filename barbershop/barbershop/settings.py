@@ -92,7 +92,7 @@ JAZZMIN_SETTINGS = {
     "related_modal_active": False,
     "custom_css": None,
     "custom_js": None,
-    "show_ui_builder": True,
+    "show_ui_builder": False,
 }
 
 JAZZMIN_UI_TWEAKS = {
@@ -100,7 +100,7 @@ JAZZMIN_UI_TWEAKS = {
     "footer_small_text": False,
     "body_small_text": False,
     "brand_small_text": False,
-    "brand_colour": False,
+    "brand_colour": False, 
     "accent": "accent-primary",
     "navbar": "navbar-dark",
     "no_navbar_border": False,
