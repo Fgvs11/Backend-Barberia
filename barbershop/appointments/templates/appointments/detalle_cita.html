@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de la Cita</title>
+</head>
+<body>
+    <h1>Detalle de la Cita</h1>
+    <p><strong>Cliente:</strong> {{ cita.id_cliente.nombre }} {{ cita.id_cliente.apellido_paterno }} {{ cita.id_cliente.apellido_materno }}</p>
+    <p><strong>Barbero:</strong> {{ cita.id_barbero.nombre }} {{ cita.id_barbero.apellido_paterno }} {{ cita.id_barbero.apellido_materno }}</p>
+    <p><strong>Servicio:</strong> {{ cita.id_servicio.nombre }}</p>
+    <p><strong>Fecha de Inicio:</strong> {{ cita.fecha_inicio }}</p>
+    <p><strong>Fecha de Finalización:</strong> {{ cita.fecha_finalizacion }}</p>
+    <p><strong>Estado:</strong> {{ cita.id_estado.nombre }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="cancel">Cancelar Cita</button>
+    </form>
+</body>
+</html>

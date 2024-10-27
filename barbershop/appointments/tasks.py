@@ -12,4 +12,5 @@ def update_appointment_status():
     for cita in citas:
         print(f"Actualizando cita: {cita.id_cita} - Fecha inicio: {cita.fecha_inicio}")
         cita.id_estado = pending_status
+        cita.token = False
         cita.save()

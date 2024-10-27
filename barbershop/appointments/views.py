@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets
 from .models import Servicios, Cliente, Barberos, Citas, EstadoCitas
 from .serializers import ServiciosSerializer, ClienteSerializer, BarberosSerializer, CitasSerializer, EstadoCitasSerializer
@@ -11,6 +12,7 @@ from django.db.models import Q
 import pytz
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.views.generic import DetailView
 # Create your views here.
 
 class ServiciosViewSet(viewsets.ModelViewSet):
@@ -225,6 +227,7 @@ class RescheduleAppointmentView(APIView):
             return Response({'error': 'Estado reprogramado no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         appointment.id_estado = estado_reprogramado
+        appointment.token = False
         appointment.save()
 
         return Response({'message': 'Estado de la cita actualizado a reprogramada'}, status=status.HTTP_200_OK)
@@ -244,6 +247,7 @@ class CancelBAppointmentView(APIView):
             return Response({'error': 'Estado cancelado por el barbero no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         appointment.id_estado = estado_reprogramado
+        appointment.token = False
         appointment.save()
 
         return Response({'message': 'Estado de la cita actualizado a cancelada por el barbero'}, status=status.HTTP_200_OK)
@@ -263,6 +267,7 @@ class CancelCAppointmentView(APIView):
             return Response({'error': 'Estado cancelado por el cliente no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         appointment.id_estado = estado_reprogramado
+        appointment.token = False
         appointment.save()
 
         return Response({'message': 'Estado de la cita actualizado a cancelada por el cliente'}, status=status.HTTP_200_OK)
@@ -301,6 +306,38 @@ class CompleteAppointmentView(APIView):
             return Response({'error': 'Estado completada no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         appointment.id_estado = estado_reprogramado
+        appointment.token = False
         appointment.save()
 
         return Response({'message': 'Estado de la cita actualizado a completada'}, status=status.HTTP_200_OK)
+    
+class AppointmentDetailView(DetailView):
+    model = Citas
+    template_name = 'appointments/detalle_cita.html'
+    context_object_name = 'cita'
+
+    def get_object(self, queryset=None):
+        # Obtener el objeto cita y verificar si el token está en True
+        tokenName = self.kwargs.get('tokenName')
+        cita = get_object_or_404(Citas, tokenName=tokenName)
+        if not cita.token or cita.id_estado.id_estado != 1:
+            # Si el token está en False, denegar el acceso
+            self.template_name = 'appointments/acceso_denegado.html'
+        return cita
+
+    def post(self, request, *args, **kwargs):
+        # Obtener la cita usando get_object (que ya verifica el token)
+        cita = self.get_object()
+        
+        # Verificar si el usuario quiere cancelar la cita
+        if 'cancel' in request.POST:
+            # Cambia el estado de la cita a 'cancelado' y guarda
+            estado_cancelado = get_object_or_404(EstadoCitas, id_estado=2)
+            cita.id_estado = estado_cancelado
+            cita.token = False
+            cita.save()
+            # Redirige a una página de confirmación o muestra el mensaje
+            return render(request, 'appointments/cita_cancelada.html', {'cita': cita})
+
+        # Si no se presiona cancelar, renderizar la página de detalles
+        return self.get(request, *args, **kwargs)

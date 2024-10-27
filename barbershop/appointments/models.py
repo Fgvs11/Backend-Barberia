@@ -1,3 +1,4 @@
+import uuid
 from datetime import timezone
 from django.db import models
 from django.core.validators import MinLengthValidator, RegexValidator
@@ -64,6 +65,7 @@ class Citas(models.Model):
     fecha_finalizacion= models.DateTimeField()
     id_estado = models.ForeignKey(EstadoCitas,default=1, on_delete = models.CASCADE)
     token = models.BooleanField(default = True)
+    tokenName= models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def clean(self):
         if self.fecha_inicio >= self.fecha_finalizacion:
