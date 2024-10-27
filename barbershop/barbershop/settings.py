@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'jazzmin',
 ]
 
 MIDDLEWARE = [

@@ -15,10 +15,14 @@ class UserBarberoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserBarberoForm, self).__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
+        if self.instance and self.instance.pk and self.instance.user:
+            # Guardar el usuario original
+            self.original_user = self.instance.user
             # Prellenar los campos de usuario relacionados si el barbero ya existe
             self.fields['username'].initial = self.instance.user.username
             self.fields['email'].initial = self.instance.user.email
+        else:
+            self.original_user = None
 
     def clean_username(self):
         """Validar que el username sea único"""
@@ -36,6 +40,8 @@ class UserBarberoForm(forms.ModelForm):
 
         return username
 
+    
+
     def save(self, commit=True):
         # Si no hay un usuario asignado al barbero, creamos uno nuevo
         user = getattr(self.instance, 'user', None)
@@ -46,6 +52,9 @@ class UserBarberoForm(forms.ModelForm):
         user.username = self.cleaned_data['username']
         user.email = self.cleaned_data['email']
 
+        if self.original_user and self.original_user.username != user.username:
+            self.original_user.delete()  # Eliminar el usuario anterior
+        
         # Si el administrador quiere cambiar la contraseña
         password = self.cleaned_data.get('password')
         if password:
