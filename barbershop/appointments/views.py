@@ -331,6 +331,15 @@ class AppointmentDetailView(DetailView):
         
         # Verificar si el usuario quiere cancelar la cita
         if 'cancel' in request.POST:
+            tiempo_restante = cita.fecha_inicio - timezone.now()
+            horas_restantes = tiempo_restante.total_seconds() / 3600
+            if horas_restantes < 2:
+                # Cambia el estado de la cita a 'falta' y guarda
+                estado_falta = get_object_or_404(EstadoCitas, id_estado=4)
+                cita.id_estado = estado_falta
+                cita.token = False
+                cita.save()
+                return render(request, 'appointments/cita_falta.html')
             # Cambia el estado de la cita a 'cancelado' y guarda
             estado_cancelado = get_object_or_404(EstadoCitas, id_estado=2)
             cita.id_estado = estado_cancelado

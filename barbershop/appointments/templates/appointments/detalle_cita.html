@@ -2,20 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de la Cita</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/stylesDetalleCita.css' %}">
 </head>
 <body>
-    <h1>Detalle de la Cita</h1>
-    <p><strong>Cliente:</strong> {{ cita.id_cliente.nombre }} {{ cita.id_cliente.apellido_paterno }} {{ cita.id_cliente.apellido_materno }}</p>
-    <p><strong>Barbero:</strong> {{ cita.id_barbero.nombre }} {{ cita.id_barbero.apellido_paterno }} {{ cita.id_barbero.apellido_materno }}</p>
-    <p><strong>Servicio:</strong> {{ cita.id_servicio.nombre }}</p>
-    <p><strong>Fecha de Inicio:</strong> {{ cita.fecha_inicio }}</p>
-    <p><strong>Fecha de Finalización:</strong> {{ cita.fecha_finalizacion }}</p>
-    <p><strong>Estado:</strong> {{ cita.id_estado.nombre }}</p>
+    <div class="container">
+        <h1>Detalle de la Cita</h1>
+        
+        <div class="form-group">
+            <label class="label">Cliente</label>
+            <input type="text" id="id_cliente" 
+                value="{{ cita.id_cliente.nombre }} {{ cita.id_cliente.apellido_paterno }} {{ cita.id_cliente.apellido_materno }}"
+                disabled class="bg-gray-200 block w-full px-4 py-2" />
+        </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" name="cancel">Cancelar Cita</button>
-    </form>
+        <div class="form-group">
+            <label class="label">Barbero</label>
+            <input type="text" id="id_barbero" 
+                value="{{ cita.id_barbero.nombre }} {{ cita.id_barbero.apellido_paterno }} {{ cita.id_barbero.apellido_materno }}"
+                disabled class="bg-gray-200 block w-full px-4 py-2" />
+        </div>
+
+        <div class="form-group">
+            <label class="label">Servicio</label>
+            <input type="text" id="id_servicio" 
+                value="{{ cita.id_servicio.nombre }}"
+                disabled class="bg-gray-200 block w-full px-4 py-2" />
+        </div>
+
+        <div class="form-group">
+            <label class="label">Fecha de Inicio</label>
+            <input type="text" id="fecha_inicio" 
+                value="{{ cita.fecha_inicio }}"
+                disabled class="bg-gray-200 block w-full px-4 py-2" />
+        </div>
+
+        <div class="form-group">
+            <label class="label">Fecha de Finalización</label>
+            <input type="text" id="fecha_finalizacion" 
+                value="{{ cita.fecha_finalizacion }}"
+                disabled class="bg-gray-200 block w-full px-4 py-2" />
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="cancel">Cancelar Cita</button>
+        </form>
+    </div>
 </body>
 </html>

@@ -90,5 +90,5 @@ urlpatterns = [
     path('citas/cancelar/cliente/<int:appointment_id>/', CancelCAppointmentView.as_view(), name='cancelar-cita-cliente'), #api/citas/cancelar/cliente/<int:appointment_id>/ PATCH
     path('citas/falto/<int:appointment_id>/', MissAppointmentView.as_view(), name='falto-cita'), #api/citas/falto/<int:appointment_id>/ PATCH
     path('citas/completar/<int:appointment_id>/', CompleteAppointmentView.as_view(), name='completar-cita'), #api/citas/completar/<int:appointment_id>/ PATCH
-    path('cita/<uuid:token>/', AppointmentDetailView.as_view(), name='detalle_cita'), #api/cita/<uuid:token>/ 
+    path('cita/<uuid:tokenName>/', AppointmentDetailView.as_view(), name='detalle_cita'), #api/cita/<uuid:token>/ 
 ]

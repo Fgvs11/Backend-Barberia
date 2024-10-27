@@ -3,11 +3,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cita Cancelada</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <h1>Tu cita ha sido cancelada</h1>
-    <p>Fecha de inicio de la cita: {{ cita.fecha_inicio }}</p>
-    <p>Fecha de finalizacion de la cita: {{ cita.fecha_finalizacion }}</p>
+    <div class="container">
+        <h1 class="title">Tu cita ha sido cancelada</h1>
+        <p class="message">La cita se ha cancelado correctamente</p>
+    </div>
 </body>
 </html>
