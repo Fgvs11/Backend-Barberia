@@ -291,3 +291,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/1'),  # Ejecutar cada minuto
     },
 }
+
+TWILIO_ACCOUNT_SID = 'ACc58fb4a176d9bf793aab869e979d0508'
+TWILIO_AUTH_TOKEN = '45877ad8a6675ae750f83bf25e512b20'
+TWILIO_PHONE_NUMBER = '+13026132036'
