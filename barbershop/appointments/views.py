@@ -213,7 +213,10 @@ class CreateAppointmentView(APIView):
         client_phone = "+52" + client.telefono
         url = f"https://kings-man-barber-shop-api.software/api/cita/{appointment.tokenName}/ "
         sms_body = f"Hola {client.nombre} {client.apellido_paterno} {client.apellido_materno}, Entendemos que tus planes pueden cambiar. Para cancelar tu cita fácilmente, solo sigue este enlace:\n {url}\nSi deseas reprogramar o necesitas ayuda, no dudes en contactarnos. Esperamos verte pronto."
-        send_sms(client_phone, sms_body)
+        try:
+            send_sms(client_phone, sms_body)
+        except Exception as e:
+            print(e)
         return Response({'message': 'Cita creada exitosamente', 'appointment_id': appointment.id_cita}, status=status.HTTP_201_CREATED)
     
 class RescheduleAppointmentView(APIView):
@@ -352,7 +355,10 @@ class AppointmentDetailView(DetailView):
             # Redirige a una página de confirmación o muestra el mensaje
             client = cita.id_cliente
             client_phone = "+52" + client.telefono
-            send_sms(client_phone, f"Tu cita ha sido cancelada. Para más información, contacta a tu barbero.")
+            try:
+                send_sms(client_phone, f"Tu cita ha sido cancelada. Para más información, contacta a tu barbero.")
+            except Exception as e:
+                print(e)
             return render(request, 'appointments/cita_cancelada.html', {'cita': cita})
 
         # Si no se presiona cancelar, renderizar la página de detalles
