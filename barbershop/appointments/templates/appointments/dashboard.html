@@ -1,0 +1,77 @@
+{% extends "appointments/base_generic.html" %}
+
+{% block content %}
+<h1>Dashboard de Citas</h1>
+
+<!-- Selector de mes -->
+<form method="get" action="">
+    <label for="month">Seleccionar Mes:</label>
+    <input type="month" id="month" name="month" value="{{ selected_month }}">
+    <button type="submit">Filtrar</button>
+    <a href="{% url 'dashboard' %}" class="dark-mode">Todo el Tiempo</a>
+</form>
+
+<!-- Datos generales -->
+<div class="general-stats">
+    <div>
+        <h2>Total de Citas</h2>
+        <p>{{ total_citas }}</p>
+    </div>
+    <div>
+        <h2>Total de Clientes</h2>
+        <p>{{ total_clientes }}</p>
+    </div>
+    <div>
+        <h2>Total de Barberos</h2>
+        <p>{{ total_barberos }}</p>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="charts">
+    <div class="chart-container">
+        <h2>Distribución de Citas por Estado</h2>
+        <div id="estado-pie-chart"></div>
+    </div>
+    <div class="chart-container">
+        <h2>Distribución de Citas por Servicio</h2>
+        <div id="servicio-pie-chart"></div>
+    </div>
+    <div class="chart-container">
+        <h2>Distribución de Citas por Barbero</h2>
+        <div id="barbero-pie-chart"></div>
+    </div>
+    <div class="chart-container">
+        <h2>Distribución de Citas por Cliente</h2>
+        <div id="cliente-pie-chart"></div>
+    </div>
+    <div class="chart-container">
+        <h2>Citas por Mes</h2>
+        <div id="citas-mes-chart"></div>
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    // Gráficos de pastel
+    var estadoPieChart = JSON.parse("{{ estado_pie_chart_json|escapejs }}");
+    estadoPieChart.layout.legend = { orientation: 'h', y: -0.3 };
+    Plotly.newPlot('estado-pie-chart', estadoPieChart.data, estadoPieChart.layout);
+
+    var servicioPieChart = JSON.parse("{{ servicio_pie_chart_json|escapejs }}");
+    servicioPieChart.layout.legend = { orientation: 'h', y: -0.3 };
+    Plotly.newPlot('servicio-pie-chart', servicioPieChart.data, servicioPieChart.layout);
+
+    var barberoPieChart = JSON.parse("{{ barbero_pie_chart_json|escapejs }}");
+    barberoPieChart.layout.legend = { orientation: 'h', y: -0.3 };
+    Plotly.newPlot('barbero-pie-chart', barberoPieChart.data, barberoPieChart.layout);
+
+    var clientePieChart = JSON.parse("{{ cliente_pie_chart_json|escapejs }}");
+    clientePieChart.layout.legend = { orientation: 'h', y: -0.3 };
+    Plotly.newPlot('cliente-pie-chart', clientePieChart.data, clientePieChart.layout);
+
+    // Gráfico de línea de citas por mes o por día del mes
+    var citasMesChart = JSON.parse("{{ citas_mes_chart_json|escapejs }}");
+    Plotly.newPlot('citas-mes-chart', citasMesChart.data, citasMesChart.layout);
+</script>
+{% endblock %}

@@ -8,12 +8,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime, timedelta
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db.models.functions import TruncMonth, TruncDay
 import pytz
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from .utils import send_sms
+import plotly.graph_objects as go
+import plotly.express as px
+import plotly.io as pio
+import json
+from django.views.generic import View
+from django.utils.timezone import now
 # Create your views here.
 
 class ServiciosViewSet(viewsets.ModelViewSet):
@@ -363,3 +370,98 @@ class AppointmentDetailView(DetailView):
 
         # Si no se presiona cancelar, renderizar la página de detalles
         return self.get(request, *args, **kwargs)
+
+class DashboardView(TemplateView):
+    template_name = 'appointments/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Obtener el mes seleccionado de los parámetros de la URL
+        selected_month = self.request.GET.get('month')
+        if selected_month:
+            try:
+                selected_month_date = datetime.strptime(selected_month, '%Y-%m')
+                citas = Citas.objects.filter(fecha_inicio__year=selected_month_date.year, fecha_inicio__month=selected_month_date.month)
+                citas_por_dia = citas.annotate(day=TruncDay('fecha_inicio')).values('day').annotate(count=Count('id_cita')).order_by('day')
+            except ValueError:
+                citas = Citas.objects.all()
+                citas_por_dia = []
+        else:
+            citas = Citas.objects.all()
+            citas_por_dia = []
+
+        # Datos generales
+        total_citas = citas.count()
+        total_clientes = Cliente.objects.count()
+        total_barberos = Barberos.objects.count()
+
+        # Datos de las citas
+        estados_citas = citas.values('id_estado__nombre').annotate(count=Count('id_estado'))
+        servicios_citas = citas.values('id_servicio__nombre').annotate(count=Count('id_servicio'))
+        barberos_citas = citas.values('id_barbero__nombre').annotate(count=Count('id_barbero'))
+        clientes_citas = citas.values('id_cliente__nombre').annotate(count=Count('id_cliente'))
+
+        # Gráfico circular de estados de citas
+        fig_estados = {
+            'data': [{'labels': [estado['id_estado__nombre'] for estado in estados_citas],
+                      'values': [estado['count'] for estado in estados_citas],
+                      'type': 'pie'}],
+            'layout': {'title': 'Distribución de Citas por Estado'}
+        }
+        context['estado_pie_chart_json'] = json.dumps(fig_estados)
+
+        # Gráfico circular de servicios de citas
+        fig_servicios = {
+            'data': [{'labels': [servicio['id_servicio__nombre'] for servicio in servicios_citas],
+                      'values': [servicio['count'] for servicio in servicios_citas],
+                      'type': 'pie'}],
+            'layout': {'title': 'Distribución de Citas por Servicio'}
+        }
+        context['servicio_pie_chart_json'] = json.dumps(fig_servicios)
+
+        # Gráfico circular de barberos de citas
+        fig_barberos = {
+            'data': [{'labels': [barbero['id_barbero__nombre'] for barbero in barberos_citas],
+                      'values': [barbero['count'] for barbero in barberos_citas],
+                      'type': 'pie'}],
+            'layout': {'title': 'Distribución de Citas por Barbero'}
+        }
+        context['barbero_pie_chart_json'] = json.dumps(fig_barberos)
+
+        # Gráfico circular de clientes
+        fig_cliente = {
+            'data': [{'labels': [cliente['id_cliente__nombre'] for cliente in clientes_citas],
+                      'values': [cliente['count'] for cliente in clientes_citas],
+                      'type': 'pie'}],
+            'layout': {'title': 'Distribución de Citas por Cliente'}
+        }
+        context['cliente_pie_chart_json'] = json.dumps(fig_cliente)
+
+        # Gráfico de línea de citas por día del mes o por mes
+        if selected_month:
+            fig_citas_mes = {
+                'data': [{'x': [cita['day'].strftime('%Y-%m-%d') for cita in citas_por_dia],
+                          'y': [cita['count'] for cita in citas_por_dia],
+                          'type': 'scatter',
+                          'mode': 'lines+markers'}],
+                'layout': {'title': f'Citas por Día en {selected_month_date.strftime("%B %Y")}'}
+            }
+        else:
+            citas_por_mes = Citas.objects.annotate(month=TruncMonth('fecha_inicio')).values('month').annotate(count=Count('id_cita')).order_by('month')
+            fig_citas_mes = {
+                'data': [{'x': [cita['month'].strftime('%Y-%m') for cita in citas_por_mes],
+                          'y': [cita['count'] for cita in citas_por_mes],
+                          'type': 'scatter',
+                          'mode': 'lines+markers'}],
+                'layout': {'title': 'Citas por Mes'}
+            }
+        context['citas_mes_chart_json'] = json.dumps(fig_citas_mes)
+
+        # Datos generales
+        context['total_citas'] = total_citas
+        context['total_clientes'] = total_clientes
+        context['total_barberos'] = total_barberos
+        context['selected_month'] = selected_month
+
+        return context

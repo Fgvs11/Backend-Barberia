@@ -11,11 +11,20 @@ from django_celery_beat.models import (
     PeriodicTask,
 )
 from django.apps import apps
+from django.urls import reverse
+from django.utils.html import format_html
 
 
 class BarberosAdmin(admin.ModelAdmin):
     form = UserBarberoForm
     list_display = ('nombre', 'apellido_paterno', 'apellido_materno', 'telefono', 'user')
+
+class DashboardAdmin(admin.ModelAdmin):
+    def view_dashboard(self, obj):
+        url = reverse('dashboard')
+        return format_html('<a href="{}">Ver Dashboard</a>', url)
+
+    view_dashboard.short_description = "Dashboard de Citas"
 
 
 # Register your models here.

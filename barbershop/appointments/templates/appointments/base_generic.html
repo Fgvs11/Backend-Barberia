@@ -1,0 +1,53 @@
+<!-- appointments/templates/appointments/base_generic.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'appointments/dashboard.css' %}">
+</head>
+<body>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    <button id="toggle-dark-mode">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-moon">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 1.992a10 10 0 1 0 9.236 13.838c.341 -.82 -.476 -1.644 -1.298 -1.31a6.5 6.5 0 0 1 -6.864 -10.787l.077 -.08c.551 -.63 .113 -1.653 -.758 -1.653h-.266l-.068 -.006l-.06 -.002z" />
+        </svg>
+    </button>
+    <script>
+        document.getElementById('toggle-dark-mode').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            var buttons = document.querySelectorAll('form button, form a');
+            buttons.forEach(function(button) {
+                button.classList.toggle('dark-mode');
+            });
+
+            // Cambiar el fondo de las gráficas
+            var charts = document.querySelectorAll('.chart-container');
+            charts.forEach(function(chart) {
+                var plotlyDiv = chart.querySelector('.js-plotly-plot');
+                if (plotlyDiv) {
+                    var layoutUpdate = {
+                        paper_bgcolor: document.body.classList.contains('dark-mode') ? '#444' : '#fff',
+                        plot_bgcolor: document.body.classList.contains('dark-mode') ? '#444' : '#fff',
+                        font: {
+                            color: document.body.classList.contains('dark-mode') ? '#f4f4f4' : '#333'
+                        },
+                        xaxis: {
+                            gridcolor: document.body.classList.contains('dark-mode') ? '#666' : '#ccc'
+                        },
+                        yaxis: {
+                            gridcolor: document.body.classList.contains('dark-mode') ? '#666' : '#ccc'
+                        }
+                    };
+                    Plotly.relayout(plotlyDiv, layoutUpdate);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
