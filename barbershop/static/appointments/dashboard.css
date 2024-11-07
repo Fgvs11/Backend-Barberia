@@ -1,0 +1,184 @@
+/* dashboard.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+form label {
+    margin-right: 10px;
+}
+
+form input[type="month"] {
+    margin-right: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button, form a {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+form button:hover, form a:hover {
+    background-color: #0056b3;
+}
+
+.general-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.general-stats div {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    flex: 1;
+    margin: 0 10px;
+}
+
+.general-stats div h2 {
+    margin-bottom: 10px;
+}
+
+.charts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.chart-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    flex: 1 1 30%;
+    min-width: 300px;
+}
+
+.chart-container h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .general-stats {
+        flex-direction: column;
+    }
+
+    .general-stats div {
+        margin-bottom: 10px;
+    }
+
+    .charts {
+        flex-direction: column;
+    }
+
+    .chart-container {
+        width: calc(100% - 40px); /* Ajustar el ancho y agregar margen */
+        margin: 5px auto; /* Centrar el contenedor */
+    }
+}
+
+/* Modo oscuro */
+body.dark-mode {
+    background-color: #333;
+    color: #f4f4f4;
+}
+
+body.dark-mode .general-stats div {
+    background-color: #444;
+    color: #f4f4f4;
+}
+
+body.dark-mode .chart-container {
+    background-color: #444;
+    color: #f4f4f4;
+}
+
+form button.dark-mode, form a.dark-mode {
+    background-color: #444;
+    color: #f4f4f4;
+}
+
+form button.dark-mode:hover, form a.dark-mode:hover {
+    background-color: #666;
+}
+
+/* Botón de modo oscuro */
+#toggle-dark-mode {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#toggle-dark-mode svg {
+    width: 24px;
+    height: 24px;
+}
+
+#toggle-dark-mode.dark-mode {
+    background-color: #444;
+    color: #f4f4f4;
+}
+
+#toggle-dark-mode.dark-mode:hover {
+    background-color: #666;
+}
+
+/* Botón de exportación a PDF */
+#export-pdf {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #f61c2a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#export-pdf:hover {
+    background-color: #b5141f;
+}

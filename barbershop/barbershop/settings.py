@@ -80,7 +80,13 @@ JAZZMIN_SETTINGS = {
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
-    "hide_models": [],
+    "hide_models": [
+        "django_celery_beat.PeriodicTask",
+        "django_celery_beat.IntervalSchedule",
+        "django_celery_beat.CrontabSchedule",
+        "django_celery_beat.SolarSchedule",
+        "django_celery_beat.ClockedSchedule"
+        ],
     "order_with_respect_to": ["auth", "appointments", "rest_framework"],
     "icons": {
         "auth": "fas fa-users-cog",
@@ -93,6 +99,10 @@ JAZZMIN_SETTINGS = {
     "custom_css": None,
     "custom_js": None,
     "show_ui_builder": False,
+    "topmenu_links": [
+        {"name": "Dashboard", "url": "dashboard","new_windows":False,"permissions": []}
+    ],
+    
 }
 
 JAZZMIN_UI_TWEAKS = {
@@ -124,7 +134,7 @@ JAZZMIN_UI_TWEAKS = {
         "warning": "btn-warning",
         "danger": "btn-danger",
         "success": "btn-success"
-    }
+    },
 }
 
 # CORS_ALLOWED_ORIGINS = [
