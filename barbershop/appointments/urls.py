@@ -70,7 +70,7 @@ Routes:
 """
 from rest_framework.routers import DefaultRouter
 from .views import ServiciosViewSet, ClienteViewSet, BarberosViewSet, CitasViewSet, EstadoCitasViewSet, CitasByBarber, AvailableSlotsView, CreateAppointmentView,RescheduleAppointmentView, CancelBAppointmentView, CancelCAppointmentView, MissAppointmentView
-from .views import CitasByBarberSchedule, CompleteAppointmentView, AppointmentDetailView, DashboardView
+from .views import CitasByBarberSchedule, CompleteAppointmentView, AppointmentDetailView, DashboardView,GeneratePDF
 router = DefaultRouter()
 router.register(r'servicios', ServiciosViewSet)  # /api/servicios
 router.register(r'cliente', ClienteViewSet)  # /api/cliente
@@ -92,4 +92,5 @@ urlpatterns = [
     path('citas/completar/<int:appointment_id>/', CompleteAppointmentView.as_view(), name='completar-cita'), #api/citas/completar/<int:appointment_id>/ PATCH
     path('cita/<uuid:tokenName>/', AppointmentDetailView.as_view(), name='detalle_cita'), #api/cita/<uuid:token>/ 
     path('dashboard/', DashboardView.as_view(), name='dashboard'), #api/dashboard/
+    path('generate-pdf/', GeneratePDF.as_view(), name='generate-pdf'), #api/generate-pdf/
 ]

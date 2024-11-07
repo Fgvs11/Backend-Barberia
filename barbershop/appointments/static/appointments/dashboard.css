@@ -140,15 +140,20 @@ form button.dark-mode:hover, form a.dark-mode:hover {
 /* Botón de modo oscuro */
 #toggle-dark-mode {
     position: fixed;
-    bottom: 10px;
+    top: 10px;
     right: 10px;
-    padding: 10px 20px;
+    padding: 10px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     z-index: 1000;
+}
+
+#toggle-dark-mode svg {
+    width: 24px;
+    height: 24px;
 }
 
 #toggle-dark-mode.dark-mode {
@@ -158,4 +163,22 @@ form button.dark-mode:hover, form a.dark-mode:hover {
 
 #toggle-dark-mode.dark-mode:hover {
     background-color: #666;
+}
+
+/* Botón de exportación a PDF */
+#export-pdf {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px;
+    background-color: #f61c2a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#export-pdf:hover {
+    background-color: #b5141f;
 }

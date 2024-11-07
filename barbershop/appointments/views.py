@@ -21,6 +21,14 @@ import plotly.io as pio
 import json
 from django.views.generic import View
 from django.utils.timezone import now
+import io
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Image
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 # Create your views here.
 
 class ServiciosViewSet(viewsets.ModelViewSet):
@@ -465,3 +473,127 @@ class DashboardView(TemplateView):
         context['selected_month'] = selected_month
 
         return context
+    
+class GeneratePDF(View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="ReporteGeneralCitas.pdf"'
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+
+        # Estilizar el PDF
+        p.setFont("Helvetica-Bold", 16)
+        width, height = letter
+
+        # Título principal
+        title = "Reporte General de Citas"
+        title_width = p.stringWidth(title, "Helvetica-Bold", 16)
+        p.drawString((width - title_width) / 2, height - 1 * inch, title)
+        
+        selected_month = request.GET.get('month')
+        if selected_month:
+            try:
+                selected_month_date = datetime.strptime(selected_month, '%Y-%m')
+                citas = Citas.objects.filter(fecha_inicio__year=selected_month_date.year, fecha_inicio__month=selected_month_date.month)
+                line_chart_data = citas.annotate(day=TruncDay('fecha_inicio')).values('day').annotate(count=Count('id_cita')).order_by('day')
+                line_chart_title = 'Citas por Día'
+                line_chart_x_label = 'Día'
+            except ValueError:
+                citas = Citas.objects.all()
+                line_chart_data = citas.annotate(month=TruncMonth('fecha_inicio')).values('month').annotate(count=Count('id_cita')).order_by('month')
+                line_chart_title = 'Citas por Mes'
+                line_chart_x_label = 'Mes'
+        else:
+            citas = Citas.objects.all()
+            line_chart_data = citas.annotate(month=TruncMonth('fecha_inicio')).values('month').annotate(count=Count('id_cita')).order_by('month')
+            line_chart_title = 'Citas por Mes'
+            line_chart_x_label = 'Mes'
+        # Datos generales
+        total_citas = citas.count()
+        total_clientes = Cliente.objects.count()
+        total_barberos = Barberos.objects.count()
+        
+        # Total clientes
+        p.setFont("Helvetica", 12)
+        total_clientes_string = f"Total de Clientes:"
+        total_clientes_width  = p.stringWidth(total_clientes_string, "Helvetica", 12)
+        middle = (width - total_clientes_width)/2
+        p.drawString( middle, height - 1.5 * inch, total_clientes_string)
+        
+        p.drawString(middle - 2 * inch, height - 1.5 * inch, f"Total de Citas:")
+        p.drawString(middle + 2 * inch, height - 1.5 * inch, f"Total de Barberos:")
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(middle -1.6 * inch, height - 1.7 * inch, f"{total_citas}" )
+        p.drawString(middle + total_clientes_width/ 2 - .1 * inch, height - 1.7 * inch, f"{total_clientes}" )
+        p.drawString(middle + 2.7 * inch, height - 1.7 * inch, f"{total_barberos}" )
+
+        # Espacio para gráficos
+        # p.showPage()
+
+        # Gráficos en diferentes páginas
+        self.draw_pie_chart(p, width, height, 'Distribución de Citas por Estado', 'id_estado__nombre', citas.values('id_estado__nombre').annotate(count=Count('id_estado')), .3* inch, height - 5 * inch)
+        self.draw_pie_chart(p, width + 8 * inch, height, 'Distribución de Citas por Servicio', 'id_servicio__nombre', citas.values('id_servicio__nombre').annotate(count=Count('id_servicio')), 4.1* inch, height - 5 * inch)
+        
+        # p.showPage()  # Nueva página para los gráficos adicionales
+        self.draw_pie_chart(p, width, height, 'Distribución de Citas por Barbero', 'id_barbero__nombre', citas.values('id_barbero__nombre').annotate(count=Count('id_barbero')), .3* inch, height - 8 * inch)
+        self.draw_pie_chart(p, width, height, 'Distribución de Citas por Cliente', 'id_cliente__nombre', citas.values('id_cliente__nombre').annotate(count=Count('id_cliente')), 4.1* inch, height - 8 * inch)
+
+        # # Gráfico de líneas en una nueva página
+        # p.showPage()
+        self.draw_line_chart(p, width, height, line_chart_title, line_chart_data, 1.4* inch, height - 10.7 * inch, line_chart_x_label)
+
+         
+        # Finalizar el PDF
+        p.save()
+
+        # Obtener el contenido del buffer y escribirlo en la respuesta
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        return response
+
+    def draw_pie_chart(self, p, width, height, title, label_field, data,x, y):
+        # Crear el gráfico de pastel
+        labels = [item[label_field] for item in data]
+        sizes = [item['count'] for item in data]
+        fig, ax = plt.subplots()
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+        ax.axis('equal')
+        plt.title(title)
+
+        # Guardar el gráfico en un buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close(fig)
+
+        # Añadir el gráfico al PDF
+        img = Image(buf)
+        img.drawHeight = 3 * inch
+        img.drawWidth = 4 * inch
+        img.wrapOn(p, width, height)
+        img.drawOn(p,x,y)
+
+    def draw_line_chart(self, p, width, height, title, data,xpos,ypos,x_label):
+        # Crear el gráfico de líneas
+        x = [item['day'].strftime('%Y-%m-%d') if 'day' in item else item['month'].strftime('%Y-%m') for item in data]
+        y = [item['count'] for item in data]
+        fig, ax = plt.subplots()
+        ax.plot(x, y, marker='o')
+        plt.title(title)
+        plt.xlabel(x_label)
+        plt.ylabel('Cantidad de Citas')
+        plt.xticks(rotation=0)
+
+        # Guardar el gráfico en un buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close(fig)
+
+        # Añadir el gráfico al PDF
+        img = Image(buf)
+        img.drawHeight = 3 * inch
+        img.drawWidth = 6 * inch
+        img.wrapOn(p, width, height)
+        img.drawOn(p,xpos,ypos)

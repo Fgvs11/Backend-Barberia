@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{% static 'appointments/dashboard.css' %}">
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="content">
         {% block content %}{% endblock %}
     </div>
     <button id="toggle-dark-mode">
@@ -18,6 +18,17 @@
             <path d="M12 1.992a10 10 0 1 0 9.236 13.838c.341 -.82 -.476 -1.644 -1.298 -1.31a6.5 6.5 0 0 1 -6.864 -10.787l.077 -.08c.551 -.63 .113 -1.653 -.758 -1.653h-.266l-.068 -.006l-.06 -.002z" />
         </svg>
     </button>
+    <button id="export-pdf">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+            <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+            <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
+            <path d="M17 18h2" /><path d="M20 15h-3v6" />
+            <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />
+        </svg>
+    </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script>
         document.getElementById('toggle-dark-mode').addEventListener('click', function() {
             document.body.classList.toggle('dark-mode');
@@ -47,6 +58,15 @@
                     Plotly.relayout(plotlyDiv, layoutUpdate);
                 }
             });
+        });
+
+        document.getElementById('export-pdf').addEventListener('click', function() {
+            var selectedMonth = document.getElementById('month').value;
+            if (selectedMonth) {
+                window.location.href = "{% url 'generate-pdf' %}?month=" + encodeURIComponent(selectedMonth);
+            } else {
+                window.location.href = "{% url 'generate-pdf' %}";
+            }
         });
     </script>
 </body>
