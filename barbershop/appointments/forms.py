@@ -8,6 +8,7 @@ class UserBarberoForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput, required=False)  # password no es obligatorio al editar
+    is_staff = forms.BooleanField(required=False, label="Acceso al sitio de administrador")
 
     class Meta:
         model = Barberos
@@ -21,6 +22,7 @@ class UserBarberoForm(forms.ModelForm):
             # Prellenar los campos de usuario relacionados si el barbero ya existe
             self.fields['username'].initial = self.instance.user.username
             self.fields['email'].initial = self.instance.user.email
+            self.fields['is_staff'].initial = self.instance.user.is_staff
         else:
             self.original_user = None
 
@@ -51,6 +53,8 @@ class UserBarberoForm(forms.ModelForm):
         # Actualizar los campos del usuario
         user.username = self.cleaned_data['username']
         user.email = self.cleaned_data['email']
+        user.is_staff = self.cleaned_data['is_staff']
+        user.is_superuser = self.cleaned_data['is_staff']
 
         if self.original_user and self.original_user.username != user.username:
             self.original_user.delete()  # Eliminar el usuario anterior

@@ -18,13 +18,9 @@ from django.utils.html import format_html
 class BarberosAdmin(admin.ModelAdmin):
     form = UserBarberoForm
     list_display = ('nombre', 'apellido_paterno', 'apellido_materno', 'telefono', 'user')
+    search_fields = ['nombre', 'apellido_paterno', 'apellido_materno', 'telefono', 'user__username']
 
-class DashboardAdmin(admin.ModelAdmin):
-    def view_dashboard(self, obj):
-        url = reverse('dashboard')
-        return format_html('<a href="{}">Ver Dashboard</a>', url)
 
-    view_dashboard.short_description = "Dashboard de Citas"
 
 
 # Register your models here.
