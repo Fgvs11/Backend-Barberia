@@ -274,7 +274,7 @@ class CancelBAppointmentView(APIView):
         client = appointment.id_cliente
         client_phone = "+52" + client.telefono
         try:
-            send_sms(client_phone, f"Tu cita el dia {appointment.fecha_inicio} fue cancelada por el barbero {appointment.id_barbero.nombre} {appointment.id_barbero.apellido_materno}, si tiene alguna duda contacte a su barbero.")
+            send_sms(client_phone, f"Tu cita el dia {appointment.fecha_inicio} fue cancelada por el barbero {appointment.id_barbero.nombre} {appointment.id_barbero.apellido_paterno} {appointment.id_barbero.apellido_materno}, si tiene alguna duda contacte a su barbero.")
         except Exception as e:
             print(e)
         
@@ -380,7 +380,7 @@ class AppointmentDetailView(DetailView):
             barber_phone = "+52" + barber.telefono
             try:
                 send_sms(client_phone, f"Tu cita ha sido cancelada. Para más información, contacta a tu barbero.")
-                send_sms(barber_phone, f"La cita con {client.nombre} {client.apellido_materno}  el dia {cita.fecha_inicio} ha sido cancelada.")
+                send_sms(barber_phone, f"La cita con {client.nombre} {client.apellido_paterno} {client.apellido_materno}  el dia {cita.fecha_inicio} ha sido cancelada.")
             except Exception as e:
                 print(e)
             return render(request, 'appointments/cita_cancelada.html', {'cita': cita})
