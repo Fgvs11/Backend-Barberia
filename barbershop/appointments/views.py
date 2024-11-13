@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets
 from .models import Servicios, Cliente, Barberos, Citas, EstadoCitas
@@ -15,14 +15,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.views.generic import DetailView, TemplateView
 from .utils import send_sms
-import plotly.graph_objects as go
-import plotly.express as px
-import plotly.io as pio
 import json
 from django.views.generic import View
-from django.utils.timezone import now
 import io
-from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Image
